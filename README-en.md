@@ -13,7 +13,7 @@
     <a href="README.md">Русский</a> | English
 </p>
 
-## N-notation declaration
+## N notation declaration
 
 This repository uses **N notation** — a system of naming and encoding rules
 based on numeric identifiers.
@@ -32,7 +32,7 @@ resulting from ignoring this notice.
 
 For more details, see the [documentation](https://github.com/Phasalo/N_notation)
 
-# Quick start
+## Quick start
 
 ### Install
 
@@ -42,13 +42,13 @@ python -m pip install -e .
 
 ### Run the linter
 
-Show only N-notation errors:
+Show only N notation errors:
 
 ```bash
 python -m flake8 --select NNO .
 ```
 
-Show N-notation errors + other flake8 checks:
+Show N notation errors + other flake8 checks:
 
 ```bash
 python -m flake8 .
@@ -67,7 +67,7 @@ python -m unittest discover -s tests -v
 ### Project-level:
 
 * `NNO401`: filename must be `n<digits>.py`
-* `NNO500`: repository README must contain the **exact** N-notation declaration block
+* `NNO500`: repository README must contain the **exact** N notation declaration block
 
 ### AST-level:
 
@@ -100,8 +100,7 @@ python -m unittest discover -s tests -v
   (including `__init__.py`).
 > * Use `# noqa: NNO...` for local suppressions when necessary.
 
----
-
+<br>
 <p align="center">
 <b>Phasalo</b><br>
 <i>Делаем красиво!</i><br><br>

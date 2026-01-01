@@ -33,8 +33,31 @@ class TestVarNames(unittest.TestCase):
         r = run_rule_on_source(VarNames(), "for n in range(3):\n    pass\n")
         self.assertNotIn("NNO110", r.codes)
 
-    def test_allows_iterator_nn(self) -> None:
+    def test_reports_iterator_nn_at_top_level(self) -> None:
         r = run_rule_on_source(VarNames(), "for nn in range(3):\n    pass\n")
+        self.assertIn("NNO110", r.codes)
+
+    def test_allows_nested_iterators_n_then_nn(self) -> None:
+        src = """\
+for n in range(3):
+    for nn in range(3):
+        pass
+"""
+        r = run_rule_on_source(VarNames(), src)
+        self.assertNotIn("NNO110", r.codes)
+
+    def test_reports_wrong_nested_iterator_name(self) -> None:
+        src = """\
+for n in range(3):
+    for n in range(3):
+        pass
+"""
+        r = run_rule_on_source(VarNames(), src)
+        self.assertIn("NNO110", r.codes)
+
+    def test_allows_comprehension_iterators_n_then_nn(self) -> None:
+        src = "n1234567890 = [n for n in range(3) for nn in range(3)]\n"
+        r = run_rule_on_source(VarNames(), src)
         self.assertNotIn("NNO110", r.codes)
 
     def test_skips_direct_class_body_assignments(self) -> None:

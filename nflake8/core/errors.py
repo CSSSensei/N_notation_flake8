@@ -15,7 +15,7 @@ class ErrorCodes:
     NNO109 = "member-name invalid got {name}"
 
     # AST-level: iterators
-    NNO110 = "iterator invalid got {name}"
+    NNO110 = "iterator invalid expected {expected} got {name}"
 
     # AST-level: parameters / receiver
     NNO201 = "param required expected {expected} got {name}"

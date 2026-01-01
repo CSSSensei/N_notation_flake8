@@ -52,9 +52,8 @@ def suggest_private_member_name(*, filename: str, line: int, col: int) -> str:
     return f"_n{_stable_10_digits(kind='member_private', filename=filename, line=line, col=col)}"
 
 
-def suggest_iterator_name() -> str:
-    # Iterator naming is structural (n, nn, nnn...), so the simplest suggestion is "n".
-    return "n"
+def suggest_iterator_name(expected: str = "n") -> str:
+    return expected
 
 
 def suggest_optional_param_name(*, filename: str, line: int, col: int) -> str:

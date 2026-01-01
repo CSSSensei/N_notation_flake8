@@ -15,6 +15,14 @@ class TestParamNames(unittest.TestCase):
         r = run_rule_on_source(ParamNames(), "def n1234567890(n1):\n    pass\n")
         self.assertNotIn("NNO201", r.codes)
 
+    def test_required_positional_must_start_with_n1(self) -> None:
+        r = run_rule_on_source(ParamNames(), "def n1234567890(n2):\n    pass\n")
+        self.assertIn("NNO201", r.codes)
+
+    def test_required_positional_must_be_sequential_no_gaps(self) -> None:
+        r = run_rule_on_source(ParamNames(), "def n1234567890(n1, n3):\n    pass\n")
+        self.assertIn("NNO201", r.codes)
+
     def test_reports_optional_param_invalid_name(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(n1, x=None):\n    pass\n")
         self.assertIn("NNO202", r.codes)
@@ -30,7 +38,16 @@ class N1234567890:
         pass
 """
         r = run_rule_on_source(ParamNames(), src)
-        self.assertIn("NNO201", r.codes)  # x is required and invalid
+        self.assertIn("NNO201", r.codes)
+
+    def test_method_required_positional_sequence_after_receiver(self) -> None:
+        src = """\
+class N1234567890:
+    def n_1234567890(self, n2):
+        pass
+"""
+        r = run_rule_on_source(ParamNames(), src)
+        self.assertIn("NNO201", r.codes)
 
     def test_method_with_staticmethod_does_not_skip_first_param(self) -> None:
         src = """\

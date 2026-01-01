@@ -36,7 +36,14 @@ class ParamNames(Rule):
 
         for i, a in enumerate(pos_params):
             is_required = i < required_pos_count
-            violations.extend(self._check_one_param(a, is_required=is_required))
+            expected_required = f"n{i + 1}" if is_required else None
+            violations.extend(
+                self._check_one_param(
+                    a,
+                    is_required=is_required,
+                    expected_required=expected_required,
+                )
+            )
 
         # Keyword-only params: each has matching default (or None)
         kw_defaults = list(args.kw_defaults or [])
@@ -52,17 +59,30 @@ class ParamNames(Rule):
 
         return violations
 
-    def _check_one_param(self, node: ast.arg, *, is_required: bool) -> list[Violation]:
+    def _check_one_param(
+        self,
+        node: ast.arg,
+        *,
+        is_required: bool,
+        expected_required: str | None = None,
+    ) -> list[Violation]:
         name = node.arg
 
         if is_required:
-            if is_required_param_name(name):
-                return []
+            if expected_required is not None:
+                if name == expected_required:
+                    return []
+                expected = expected_required
+            else:
+                if is_required_param_name(name):
+                    return []
+                expected = "n<posint>"
+
             return [
                 violation_at_node(
                     node,
                     "NNO201",
-                    ErrorCodes.NNO201.format(expected="n<posint>", name=name),
+                    ErrorCodes.NNO201.format(expected=expected, name=name),
                 )
             ]
 

@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/badge/made%20by-CSSSensei-1591EA" >
 <img src="https://img.shields.io/badge/Phasalo-000FFF">
 <img src="https://img.shields.io/badge/coverage-92％-000080">
-<img src="https://img.shields.io/badge/version-N1n0.0-0000FF">
+<img src="https://img.shields.io/badge/version-N1n1.0-0000FF">
 </p>
 
 <p align="center">

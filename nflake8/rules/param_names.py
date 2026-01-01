@@ -4,8 +4,9 @@ import ast
 
 from ..core.errors import ErrorCodes
 from ..core.patterns import is_required_param_name, is_var_name
+from ..core.suggestions import format_with_suggestion, suggest_optional_param_name
 from ..core.types import Violation
-from .ast_utils import has_decorator, violation_at_node
+from .ast_utils import has_decorator, node_location, violation_at_node
 from .base import Rule, Source
 
 
@@ -40,6 +41,7 @@ class ParamNames(Rule):
             violations.extend(
                 self._check_one_param(
                     a,
+                    filename=source.filename,
                     is_required=is_required,
                     expected_required=expected_required,
                 )
@@ -49,13 +51,13 @@ class ParamNames(Rule):
         kw_defaults = list(args.kw_defaults or [])
         for a, d in zip(list(args.kwonlyargs), kw_defaults):
             is_required = d is None
-            violations.extend(self._check_one_param(a, is_required=is_required))
+            violations.extend(self._check_one_param(a, filename=source.filename, is_required=is_required))
 
         # *args / **kwargs are always optional-like
         if args.vararg is not None:
-            violations.extend(self._check_one_param(args.vararg, is_required=False))
+            violations.extend(self._check_one_param(args.vararg, filename=source.filename, is_required=False))
         if args.kwarg is not None:
-            violations.extend(self._check_one_param(args.kwarg, is_required=False))
+            violations.extend(self._check_one_param(args.kwarg, filename=source.filename, is_required=False))
 
         return violations
 
@@ -63,6 +65,7 @@ class ParamNames(Rule):
         self,
         node: ast.arg,
         *,
+        filename: str,
         is_required: bool,
         expected_required: str | None = None,
     ) -> list[Violation]:
@@ -73,26 +76,35 @@ class ParamNames(Rule):
                 if name == expected_required:
                     return []
                 expected = expected_required
+                suggested = expected_required
             else:
                 if is_required_param_name(name):
                     return []
                 expected = "n<posint>"
+                suggested = "n1"
 
             return [
                 violation_at_node(
                     node,
                     "NNO201",
-                    ErrorCodes.NNO201.format(expected=expected, name=name),
+                    format_with_suggestion(
+                        ErrorCodes.NNO201.format(expected=expected, name=name),
+                        suggest=suggested,
+                    ),
                 )
             ]
 
         if is_var_name(name):
             return []
 
+        line, col = node_location(node)
         return [
             violation_at_node(
                 node,
                 "NNO202",
-                ErrorCodes.NNO202.format(name=name),
+                format_with_suggestion(
+                    ErrorCodes.NNO202.format(name=name),
+                    suggest=suggest_optional_param_name(filename=filename, line=line, col=col),
+                ),
             )
         ]

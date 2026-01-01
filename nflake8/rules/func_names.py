@@ -4,8 +4,9 @@ import ast
 
 from ..core.errors import ErrorCodes
 from ..core.patterns import is_func_name
+from ..core.suggestions import format_with_suggestion, suggest_func_name
 from ..core.types import Violation
-from .ast_utils import violation_at_node
+from .ast_utils import node_location, violation_at_node
 from .base import Rule, Source
 
 
@@ -24,10 +25,15 @@ class FuncNames(Rule):
         if is_func_name(node.name):
             return []
 
+        line, col = node_location(node)
+
         return [
             violation_at_node(
                 node,
                 "NNO104",
-                ErrorCodes.NNO104.format(name=node.name),
+                format_with_suggestion(
+                    ErrorCodes.NNO104.format(name=node.name),
+                    suggest=suggest_func_name(filename=source.filename, line=line, col=col),
+                ),
             )
         ]

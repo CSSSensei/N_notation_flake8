@@ -4,8 +4,13 @@ import ast
 
 from ..core.errors import ErrorCodes
 from ..core.patterns import expected_direct_base_name, is_class_name, is_derived_class_name
+from ..core.suggestions import (
+    format_with_suggestion,
+    suggest_class_name,
+    suggest_derived_class_suffix,
+)
 from ..core.types import Violation
-from .ast_utils import violation_at_node
+from .ast_utils import node_location, violation_at_node
 from .base import Rule, Source
 
 
@@ -19,21 +24,33 @@ class ClassNames(Rule):
 
         violations: list[Violation] = []
 
+        line, col = node_location(node)
+
         if not is_class_name(node.name):
             violations.append(
                 violation_at_node(
                     node,
                     "NNO106",
-                    ErrorCodes.NNO106.format(name=node.name),
+                    format_with_suggestion(
+                        ErrorCodes.NNO106.format(name=node.name),
+                        suggest=suggest_class_name(filename=source.filename, line=line, col=col),
+                    ),
                 )
             )
 
         if node.bases and not is_derived_class_name(node.name):
+            suggested = (
+                suggest_class_name(filename=source.filename, line=line, col=col)
+                + suggest_derived_class_suffix(filename=source.filename, line=line, col=col)
+            )
             violations.append(
                 violation_at_node(
                     node,
                     "NNO105",
-                    ErrorCodes.NNO105.format(name=node.name),
+                    format_with_suggestion(
+                        ErrorCodes.NNO105.format(name=node.name),
+                        suggest=suggested,
+                    ),
                 )
             )
             return violations
@@ -51,7 +68,10 @@ class ClassNames(Rule):
                         violation_at_node(
                             node,
                             "NNO107",
-                            ErrorCodes.NNO107.format(expected=expected_base),
+                            format_with_suggestion(
+                                ErrorCodes.NNO107.format(expected=expected_base),
+                                suggest=expected_base,
+                            ),
                         )
                     )
 

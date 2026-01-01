@@ -34,6 +34,16 @@ This plugin checks the following N notation philosophy rules:
 > [!IMPORTANT]
 > * For the full specification see the [documentation](https://github.com/Phasalo/N_notation).
 
+## Feature: name suggestion
+
+If a naming rule is violated, the linter may suggest a valid identifier in the diagnostic message:
+
+`... (suggest <name>)`
+
+Example:
+
+`NNO101 var-name invalid got count (suggest n0123456789)`
+
 ## Quick start
 
 ### Install

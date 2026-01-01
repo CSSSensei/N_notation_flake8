@@ -10,6 +10,7 @@ class TestVarNames(unittest.TestCase):
     def test_reports_invalid_var_name(self) -> None:
         r = run_rule_on_source(VarNames(), "count = 0\n")
         self.assertIn("NNO101", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_decimal_var_name(self) -> None:
         r = run_rule_on_source(VarNames(), "n1234567890 = 0\n")
@@ -26,6 +27,7 @@ class TestVarNames(unittest.TestCase):
     def test_reports_invalid_iterator_name(self) -> None:
         r = run_rule_on_source(VarNames(), "for i in range(3):\n    pass\n")
         self.assertIn("NNO110", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_iterator_n(self) -> None:
         r = run_rule_on_source(VarNames(), "for n in range(3):\n    pass\n")
@@ -52,6 +54,7 @@ except Exception as e:
 """
         r = run_rule_on_source(VarNames(), src)
         self.assertIn("NNO101", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_reports_with_as_name(self) -> None:
         src = """\
@@ -60,3 +63,4 @@ with open("x", "w") as f:
 """
         r = run_rule_on_source(VarNames(), src)
         self.assertIn("NNO101", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))

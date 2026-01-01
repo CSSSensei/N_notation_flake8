@@ -10,6 +10,7 @@ class TestFuncNames(unittest.TestCase):
     def test_reports_invalid_function_name(self) -> None:
         r = run_rule_on_source(FuncNames(), "def foo(n1):\n    pass\n")
         self.assertIn("NNO104", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_valid_function_name(self) -> None:
         r = run_rule_on_source(FuncNames(), "def n1234567890(n1):\n    pass\n")

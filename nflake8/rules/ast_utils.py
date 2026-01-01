@@ -5,6 +5,12 @@ import ast
 from ..core.types import Violation
 
 
+def node_location(node: ast.AST) -> tuple[int, int]:
+    line = getattr(node, "lineno", 1) or 1
+    col = getattr(node, "col_offset", 0) or 0
+    return (line, col)
+
+
 def violation_at_node(
     node: ast.AST,
     code: str,
@@ -27,8 +33,7 @@ def violation_at_node(
             if isinstance(node.body[0].value.value, str):
                 return violation_at_node(node.body[0], code, message, prefer_docstring_expr=False)
 
-    line = getattr(node, "lineno", 1) or 1
-    col = getattr(node, "col_offset", 0) or 0
+    line, col = node_location(node)
     return Violation(_line=line, _col=col, _code=code, _message=message)
 
 

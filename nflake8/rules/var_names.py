@@ -4,8 +4,13 @@ import ast
 
 from ..core.errors import ErrorCodes
 from ..core.patterns import is_const_name, is_iterator_name, is_var_name
+from ..core.suggestions import (
+    format_with_suggestion,
+    suggest_iterator_name,
+    suggest_var_name,
+)
 from ..core.types import Violation
-from .ast_utils import violation_at_node
+from .ast_utils import node_location, violation_at_node
 from .base import Rule, Source
 
 
@@ -49,22 +54,22 @@ class VarNames(Rule):
             return []
 
         if isinstance(node, ast.Assign):
-            return self._check_var_targets(node.targets)
+            return self._check_var_targets(node.targets, filename=source.filename)
 
         if isinstance(node, ast.AnnAssign):
-            return self._check_var_targets([node.target])
+            return self._check_var_targets([node.target], filename=source.filename)
 
         if isinstance(node, ast.AugAssign):
-            return self._check_var_targets([node.target])
+            return self._check_var_targets([node.target], filename=source.filename)
 
         if isinstance(node, ast.NamedExpr):
-            return self._check_var_targets([node.target])
+            return self._check_var_targets([node.target], filename=source.filename)
 
         # "with ... as <name>"
         if isinstance(node, ast.withitem):
             if node.optional_vars is None:
                 return []
-            return self._check_var_targets([node.optional_vars])
+            return self._check_var_targets([node.optional_vars], filename=source.filename)
 
         # "except ... as <name>"
         if isinstance(node, ast.ExceptHandler):
@@ -74,59 +79,71 @@ class VarNames(Rule):
                 return []
             if is_const_name(node.name):
                 return []
+            line, col = node_location(node)
             return [
                 violation_at_node(
                     node,
                     "NNO101",
-                    ErrorCodes.NNO101.format(name=node.name),
+                    format_with_suggestion(
+                        ErrorCodes.NNO101.format(name=node.name),
+                        suggest=suggest_var_name(filename=source.filename, line=line, col=col),
+                    ),
                 )
             ]
 
         if isinstance(node, (ast.For, ast.AsyncFor)):
-            return self._check_iter_targets([node.target])
+            return self._check_iter_targets([node.target], filename=source.filename)
 
         if isinstance(node, ast.comprehension):
-            return self._check_iter_targets([node.target])
+            return self._check_iter_targets([node.target], filename=source.filename)
 
         if isinstance(node, ast.MatchAs):
             if node.name is None:
                 return []
-            return self._check_bound_name(node, node.name)
+            return self._check_bound_name(node, node.name, filename=source.filename)
 
         if isinstance(node, ast.MatchStar):
             if node.name is None:
                 return []
-            return self._check_bound_name(node, node.name)
+            return self._check_bound_name(node, node.name, filename=source.filename)
 
         return []
 
-    def _check_bound_name(self, node: ast.AST, name: str) -> list[Violation]:
+    def _check_bound_name(self, node: ast.AST, name: str, *, filename: str) -> list[Violation]:
         if is_var_name(name) or is_const_name(name):
             return []
+        line, col = node_location(node)
         return [
             violation_at_node(
                 node,
                 "NNO101",
-                ErrorCodes.NNO101.format(name=name),
+                format_with_suggestion(
+                    ErrorCodes.NNO101.format(name=name),
+                    suggest=suggest_var_name(filename=filename, line=line, col=col),
+                ),
             )
         ]
 
-    def _check_var_targets(self, targets: list[ast.AST]) -> list[Violation]:
+    def _check_var_targets(self, targets: list[ast.AST], *, filename: str) -> list[Violation]:
         violations: list[Violation] = []
         for t in targets:
             for name_node in _collect_name_targets(t):
                 if is_var_name(name_node.id) or is_const_name(name_node.id):
                     continue
+                line, col = node_location(name_node)
                 violations.append(
                     violation_at_node(
                         name_node,
                         "NNO101",
-                        ErrorCodes.NNO101.format(name=name_node.id),
+                        format_with_suggestion(
+                            ErrorCodes.NNO101.format(name=name_node.id),
+                            suggest=suggest_var_name(filename=filename, line=line, col=col),
+                        ),
                     )
                 )
         return violations
 
-    def _check_iter_targets(self, targets: list[ast.AST]) -> list[Violation]:
+    def _check_iter_targets(self, targets: list[ast.AST], *, filename: str) -> list[Violation]:
         violations: list[Violation] = []
         for t in targets:
             for name_node in _collect_name_targets(t):
@@ -136,7 +153,10 @@ class VarNames(Rule):
                     violation_at_node(
                         name_node,
                         "NNO110",
-                        ErrorCodes.NNO110.format(name=name_node.id),
+                        format_with_suggestion(
+                            ErrorCodes.NNO110.format(name=name_node.id),
+                            suggest=suggest_iterator_name(),
+                        ),
                     )
                 )
         return violations

@@ -10,6 +10,7 @@ class TestParamNames(unittest.TestCase):
     def test_reports_required_param_invalid_name(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(x):\n    pass\n")
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_required_param_n1(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(n1):\n    pass\n")
@@ -18,14 +19,17 @@ class TestParamNames(unittest.TestCase):
     def test_required_positional_must_start_with_n1(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(n2):\n    pass\n")
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_required_positional_must_be_sequential_no_gaps(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(n1, n3):\n    pass\n")
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_reports_optional_param_invalid_name(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(n1, x=None):\n    pass\n")
         self.assertIn("NNO202", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_optional_param_n10digits(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(n1, n1234567890=None):\n    pass\n")
@@ -39,6 +43,7 @@ class N1234567890:
 """
         r = run_rule_on_source(ParamNames(), src)
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_method_required_positional_sequence_after_receiver(self) -> None:
         src = """\
@@ -48,6 +53,7 @@ class N1234567890:
 """
         r = run_rule_on_source(ParamNames(), src)
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_method_with_staticmethod_does_not_skip_first_param(self) -> None:
         src = """\
@@ -58,10 +64,12 @@ class N1234567890:
 """
         r = run_rule_on_source(ParamNames(), src)
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_kwonly_required_param(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(*, x):\n    pass\n")
         self.assertIn("NNO201", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_kwonly_optional_param(self) -> None:
         r = run_rule_on_source(ParamNames(), "def n1234567890(*, n1234567890=None):\n    pass\n")

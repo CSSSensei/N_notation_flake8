@@ -14,6 +14,7 @@ class N1234567890:
 """
         r = run_rule_on_source(MemberNames(), src)
         self.assertIn("NNO108", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_reports_invalid_private_member_name(self) -> None:
         src = """\
@@ -22,6 +23,7 @@ class N1234567890:
 """
         r = run_rule_on_source(MemberNames(), src)
         self.assertIn("NNO109", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_valid_public_member_name(self) -> None:
         src = """\
@@ -47,6 +49,7 @@ class N1234567890:
 """
         r = run_rule_on_source(MemberNames(), src)
         self.assertIn("NNO108", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_valid_method_member_name(self) -> None:
         src = """\

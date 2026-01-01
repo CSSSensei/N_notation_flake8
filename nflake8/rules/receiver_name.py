@@ -4,6 +4,7 @@ import ast
 
 from ..core.errors import ErrorCodes
 from ..core.patterns import expected_receiver_name
+from ..core.suggestions import format_with_suggestion
 from ..core.types import Violation
 from .ast_utils import first_positional_arg, has_decorator, violation_at_node
 from .base import Rule, Source
@@ -36,6 +37,9 @@ class ReceiverName(Rule):
             violation_at_node(
                 node,
                 "NNO210",
-                ErrorCodes.NNO210.format(expected=expected, name=got),
+                format_with_suggestion(
+                    ErrorCodes.NNO210.format(expected=expected, name=got),
+                    suggest=expected,
+                ),
             )
         ]

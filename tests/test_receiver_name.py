@@ -15,6 +15,7 @@ class N1234567890:
 """
         r = run_rule_on_source(ReceiverName(), src)
         self.assertIn("NNO210", r.codes)
+        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_correct_receiver(self) -> None:
         src = """\

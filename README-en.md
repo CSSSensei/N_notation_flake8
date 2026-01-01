@@ -25,7 +25,7 @@ This plugin checks the following N notation philosophy rules:
 - **Files:** `n<digits>.py` (see `NNO401`).
 - **Directories:** `N<digits>[_<digits>]...` (see `NNO420`).
 - **Variables / functions:** `n<10 digits>` (boolean: `n<10 bits>`).
-- **Classes:** `N<10 digits>`, derived classes form a chain `N<id>n<id>...` (see `NNO107`).
+- **Classes:** `N<10 digits>`, derived classes form a chain `N<id>n<id>...` (see `NNO105`, `NNO107`).
 - **Class members:** `n_<...>` / `_n<...>`; method receiver is not `self` but `n<ClassId>` (see `NNO210`).
 - **Loop/comprehension iterators:** `n`, `nn`, `nnn`, ...
 - **Imports:** alias required + ordering/separation/sorting (see `NNO301–NNO312`).
@@ -75,6 +75,7 @@ python -m unittest discover -s tests -v
 
 * `NNO101`: invalid variable name
 * `NNO104`: invalid function name
+* `NNO105`: when inheriting, class name must be derived (`N<id>n<id>...`)
 * `NNO106`: invalid class name
 * `NNO107`: derived class name must match base class naming chain
 * `NNO108` / `NNO109`: invalid member names (`n_...` / `_n...`)

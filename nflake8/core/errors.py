@@ -6,6 +6,7 @@ class ErrorCodes:
     # AST-level: naming
     NNO101 = "var-name invalid got {name}"
     NNO104 = "func-name invalid got {name}"
+    NNO105 = "derived class name required when inheriting (got {name})"
     NNO106 = "class-name invalid got {name}"
     NNO107 = "derived-class base expected {expected}"
 

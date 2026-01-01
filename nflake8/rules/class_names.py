@@ -28,6 +28,16 @@ class ClassNames(Rule):
                 )
             )
 
+        if node.bases and not is_derived_class_name(node.name):
+            violations.append(
+                violation_at_node(
+                    node,
+                    "NNO105",
+                    ErrorCodes.NNO105.format(name=node.name),
+                )
+            )
+            return violations
+
         if is_derived_class_name(node.name):
             expected_base = expected_direct_base_name(node.name)
             if expected_base is not None:

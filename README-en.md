@@ -13,24 +13,26 @@
     <a href="README.md">Русский</a> | English
 </p>
 
-## N notation declaration
+This is a **flake8 plugin** that checks code against **N notation** rules.
+Use it in projects where you actually write in this style (or want to quickly lint specific files/directories).
 
-This repository uses **N notation** — a system of naming and encoding rules
-based on numeric identifiers.
+## N notation principles
 
-Using this notation is a deliberate architectural decision.
+This plugin checks the following N notation philosophy rules:
 
-Identifiers of files, directories, variables, functions, classes, and other program entities
-are not intended for semantic interpretation.
+- **Names are non-semantic.** Meaning comes from structure and context, not verbal identifiers.
+- **Case matters:** `N...` — structures/types, `n...` — data/executables.
+- **Files:** `n<digits>.py` (see `NNO401`).
+- **Directories:** `N<digits>[_<digits>]...` (see `NNO420`).
+- **Variables / functions:** `n<10 digits>` (boolean: `n<10 bits>`).
+- **Classes:** `N<10 digits>`, derived classes form a chain `N<id>n<id>...` (see `NNO107`).
+- **Class members:** `n_<...>` / `_n<...>`; method receiver is not `self` but `n<ClassId>` (see `NNO210`).
+- **Loop/comprehension iterators:** `n`, `nn`, `nnn`, ...
+- **Imports:** alias required + ordering/separation/sorting (see `NNO301–NNO312`).
+- **Noise is forbidden:** comments and docstrings are forbidden (except `# noqa...`).
 
-Attempts to “improve readability” by changing identifiers,
-introducing verbal names, or adapting the code to other naming styles
-are considered a violation of the project’s architectural integrity.
-
-The project maintainers are not responsible for misinterpretations of the code structure
-resulting from ignoring this notice.
-
-For more details, see the [documentation](https://github.com/Phasalo/N_notation)
+> [!IMPORTANT]
+> * For the full specification see the [documentation](https://github.com/Phasalo/N_notation).
 
 ## Quick start
 
@@ -103,6 +105,6 @@ python -m unittest discover -s tests -v
 <br>
 <p align="center">
 <b>Phasalo</b><br>
-<i>Делаем красиво!</i><br><br>
+<i>Make it pretty!</i><br><br>
 2026
 </p>

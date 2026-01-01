@@ -1,4 +1,4 @@
-<h1 align="center">N notation linter</h1>
+<h1 align="center">N Notation Linter</h1>
 <p align="center">
 <b>Following the principles is easy now!</b>
 
@@ -39,7 +39,7 @@ This plugin checks the following N notation philosophy rules:
 ### Install
 
 ```bash
-python -m pip install -e .
+python -m pip install n-notation
 ```
 
 ### Run the linter
@@ -64,7 +64,7 @@ Run all tests:
 python -m unittest discover -s tests -v
 ```
 
-## Codes (current)
+## Error codes
 
 ### Project-level:
 

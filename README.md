@@ -39,7 +39,7 @@
 ### Установка
 
 ```bash
-python -m pip install -e .
+python -m pip install n-notation
 ```
 
 ### Запуск линтера
@@ -65,7 +65,7 @@ python -m unittest discover -s tests -v
 ```
 
 
-## Коды (актуальные)
+## Коды ошибок
 
 ### Уровень проекта:
 

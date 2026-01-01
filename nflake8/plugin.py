@@ -21,7 +21,7 @@ def _load_phasalo_art() -> str:
 
 
 class NNotationChecker:
-    name = "flake8-n-notation"
+    name = "n-notation"
     version = __version__
 
     def __init__(self, tree, filename: str, lines=None):

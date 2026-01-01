@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "flake8-n-notation"
+name = "n-notation"
 version = "0.1.0"
-description = "Flake8 plugin enforcing N-notation"
+description = "Flake8 plugin enforcing N notation"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

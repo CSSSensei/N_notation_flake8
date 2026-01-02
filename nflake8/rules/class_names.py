@@ -39,10 +39,27 @@ class ClassNames(Rule):
             )
 
         if node.bases and not is_derived_class_name(node.name):
-            suggested = (
-                suggest_class_name(filename=source.filename, line=line, col=col)
-                + suggest_derived_class_suffix(filename=source.filename, line=line, col=col)
+            direct_base: str | None = None
+            if len(node.bases) == 1 and isinstance(node.bases[0], ast.Name):
+                base_name = node.bases[0].id
+                if is_class_name(base_name):
+                    direct_base = base_name
+
+            suggested_root = direct_base
+            if suggested_root is None:
+                suggested_root = suggest_class_name(
+                    filename=source.filename,
+                    line=line,
+                    col=col,
+                )
+
+            suggested_suffix = suggest_derived_class_suffix(
+                filename=source.filename,
+                line=line,
+                col=col,
             )
+            suggested = suggested_root + suggested_suffix
+
             violations.append(
                 violation_at_node(
                     node,
@@ -59,18 +76,24 @@ class ClassNames(Rule):
             expected_base = expected_direct_base_name(node.name)
             if expected_base is not None:
                 base_names: list[str] = []
-                for b in node.bases:
-                    if isinstance(b, ast.Name):
-                        base_names.append(b.id)
+                for base_node in node.bases:
+                    if isinstance(base_node, ast.Name):
+                        base_names.append(base_node.id)
 
                 if expected_base not in base_names:
+                    suggest_value = expected_base
+                    if len(base_names) == 1 and is_class_name(base_names[0]):
+                        actual_base = base_names[0]
+                        last_segment = node.name.split("n")[-1]
+                        suggest_value = f"{actual_base}n{last_segment}"
+
                     violations.append(
                         violation_at_node(
                             node,
                             "NNO107",
                             format_with_suggestion(
                                 ErrorCodes.NNO107.format(expected=expected_base),
-                                suggest=expected_base,
+                                suggest=suggest_value,
                             ),
                         )
                     )

@@ -8,7 +8,14 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from ..core.errors import ErrorCodes
-from ..core.patterns import is_from_alias, is_import_alias, is_noqa_comment
+from ..core.patterns import (
+    is_class_name,
+    is_const_name,
+    is_func_name,
+    is_import_alias,
+    is_noqa_comment,
+    is_var_name,
+)
 from ..core.types import Violation
 
 
@@ -117,10 +124,13 @@ def _collect_import(node: ast.Import) -> list[_ImportStmt]:
     end_lineno = getattr(node, "end_lineno", node.lineno) or node.lineno
 
     for alias in node.names:
-        module = alias.name.split(".")[0]
-        group = _classify_import(module, module_is_relative=False)
+        module0 = alias.name.split(".")[0]
+        group = _classify_import(module0, module_is_relative=False)
 
-        if alias.asname is None or not is_import_alias(alias.asname):
+        if _is_n_module_path(alias.name):
+            code = None
+            key = None
+        elif alias.asname is None or not is_import_alias(alias.asname):
             code = "NNO301"
             key = None
         else:
@@ -150,15 +160,20 @@ def _collect_importfrom(node: ast.ImportFrom) -> list[_ImportStmt]:
     group = _classify_import(module0, module_is_relative=is_relative)
 
     for alias in node.names:
-        if alias.asname is None:
+        imported_name = alias.name
+
+        if _is_n_object_name(imported_name):
+            code = None
+            key = None
+        elif alias.asname is None:
             code = "NNO302"
             key = None
-        elif not is_from_alias(alias.asname):
+        elif not _is_valid_from_alias(imported_name, alias.asname):
             code = "NNO303"
             key = None
         else:
             code = None
-            key = int(alias.asname[1:])
+            key = _alias_sort_key(alias.asname)
 
         out.append(
             _ImportStmt(
@@ -179,10 +194,61 @@ def _classify_import(module0: str, *, module_is_relative: bool) -> str:
         return "local"
     if module0.startswith("N") and len(module0) >= 2 and module0[1].isdigit():
         return "local"
+    if module0.startswith("n") and len(module0) >= 2 and module0[1].isdigit():
+        return "local"
     stdlib_names = getattr(sys, "stdlib_module_names", None)
     if stdlib_names and module0 in stdlib_names:
         return "stdlib"
     return "third_party"
+
+
+def _is_n_module_path(path: str) -> bool:
+    # N-directories: N<digits>[_<digits>]...
+    # Module files:  n<digits>
+    parts = path.split(".")
+    for p in parts:
+        if p.startswith("N") and len(p) > 1 and p[1].isdigit():
+            continue
+        if p.startswith("n") and len(p) > 1 and p[1].isdigit():
+            continue
+        return False
+    return True
+
+
+def _is_n_object_name(name: str) -> bool:
+    return bool(
+        is_var_name(name)
+        or is_func_name(name)
+        or is_const_name(name)
+        or is_class_name(name)
+    )
+
+
+def _is_valid_from_alias(imported_name: str, asname: str) -> bool:
+    # If original looks like Class/Const (Uppercase), alias must be N-notation class/const.
+    if imported_name and imported_name[0].isupper():
+        return bool(is_const_name(asname) or is_class_name(asname))
+    # Otherwise treat as function/variable (lowercase/underscore/etc).
+    return bool(is_var_name(asname) or is_func_name(asname))
+
+
+def _alias_sort_key(asname: str) -> int | None:
+    if not asname:
+        return None
+    if asname[0] == "N":
+        # N<10 digits> or derived class N<10 digits>n<10 digits>...
+        digits = asname[1:11]
+        if len(digits) == 10 and digits.isdigit():
+            return int(digits)
+        return None
+    if asname[0] == "n":
+        payload = asname[1:]
+        if len(payload) == 10 and payload.isdigit():
+            return int(payload)
+        if len(payload) == 10 and set(payload) <= {"0", "1"}:
+            return int(payload, 2)
+        return None
+    return None
 
 
 def _check_import_grouping_and_order(imports: list[_ImportStmt], lines: list[str]) -> list[Violation]:

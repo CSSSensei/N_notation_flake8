@@ -16,7 +16,7 @@ _ITER_RE = re.compile(r"n+\Z")
 _REQUIRED_PARAM_RE = re.compile(r"n[1-9]\d*\Z")
 
 _IMPORT_ALIAS_RE = re.compile(r"N[1-9]\d*\Z")
-_FROM_ALIAS_RE = re.compile(r"N\d{10}\Z")
+_FROM_ALIAS_RE = re.compile(r"(?:N\d{10}(?:n\d{10})*|n(?:\d{10}|[01]{10}))\Z")
 
 _NOQA_COMMENT_RE = re.compile(r"#\s*noqa(?::\s*[A-Z0-9, ]+)?\s*\Z")
 

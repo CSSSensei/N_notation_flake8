@@ -27,7 +27,6 @@ class TestVarNames(unittest.TestCase):
     def test_reports_invalid_iterator_name(self) -> None:
         r = run_rule_on_source(VarNames(), "for i in range(3):\n    pass\n")
         self.assertIn("NNO110", r.codes)
-        self.assertTrue(any("(suggest " in v.message for v in r.violations))
 
     def test_allows_iterator_n(self) -> None:
         r = run_rule_on_source(VarNames(), "for n in range(3):\n    pass\n")

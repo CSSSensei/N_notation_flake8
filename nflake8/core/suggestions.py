@@ -52,10 +52,6 @@ def suggest_private_member_name(*, filename: str, line: int, col: int) -> str:
     return f"_n{_stable_10_digits(kind='member_private', filename=filename, line=line, col=col)}"
 
 
-def suggest_iterator_name(expected: str = "n") -> str:
-    return expected
-
-
 def suggest_optional_param_name(*, filename: str, line: int, col: int) -> str:
     return suggest_var_name(filename=filename, line=line, col=col)
 

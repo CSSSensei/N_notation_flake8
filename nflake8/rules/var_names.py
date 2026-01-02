@@ -6,7 +6,6 @@ from ..core.errors import ErrorCodes
 from ..core.patterns import is_const_name, is_iterator_name, is_var_name
 from ..core.suggestions import (
     format_with_suggestion,
-    suggest_iterator_name,
     suggest_var_name,
 )
 from ..core.types import Violation
@@ -212,10 +211,7 @@ class VarNames(Rule):
                     violation_at_node(
                         name_node,
                         "NNO110",
-                        format_with_suggestion(
-                            ErrorCodes.NNO110.format(expected=exp, name=name_node.id),
-                            suggest=suggest_iterator_name(exp),
-                        ),
+                        ErrorCodes.NNO110.format(expected=exp, name=name_node.id),
                     )
                 )
         return violations
